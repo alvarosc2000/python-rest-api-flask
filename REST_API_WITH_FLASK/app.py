@@ -4,6 +4,7 @@ from datetime import timedelta
 from flask import Flask
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate  # <-- Import Flask-Migrate
 from resources.store import blp as StoreBlueprint
 from resources.item import blp as ItemBlueprint
 from resources.tags import blp as TagsBlueprint
@@ -33,6 +34,8 @@ def create_app(db_url=None):
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)     # Refresh token expira en 30 días
 
     db.init_app(app)
+    migrate = Migrate(app, db)  # <-- Inicializar Flask-Migrate
+
     api = Api(app)
 
     # Inicializar JWT
@@ -61,8 +64,9 @@ def create_app(db_url=None):
     api.register_blueprint(TagsBlueprint)
     api.register_blueprint(UserBlueprint)
 
-    with app.app_context():
-        db.create_all()
-        print("Tablas creadas o ya existen")
+    # Ya no usar db.create_all(), usa migraciones
+    # with app.app_context():
+    #     db.create_all()
+    #     print("Tablas creadas o ya existen")
 
     return app
